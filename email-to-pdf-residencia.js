@@ -26,6 +26,7 @@ const translations = {
     'norwegian': 'noruega',
     'belgian': 'belga',
     'nederlandse': 'neerlandesa'
+    'nederlander': 'neerlandesa'
   },
   countries: {
     'netherlands': 'Países Bajos',
@@ -147,13 +148,18 @@ async function generateFilledPdf(data) {
   const fields = [
     { id: 'Nombre', value: data.firstName },
     { id: '1er Apellido', value: data.lastName },
-    { id: 'Email', value: data.email },
-    { id: 'Teléfono', value: data.phone },
+    { id: 'NombreRazón Social', value: `${data.firstName} ${data.lastName}` },
+    { id: 'Nombre y apellidos del titular', value: `${data.firstName} ${data.lastName}` },
+    { id: 'email', value: data.email },
+    { id: 'email_notificacion', value: data.email },
+    { id: 'Teléfono móvil', value: data.phone },
+    { id: 'Teléfono notificación', value: data.phone },
     { id: 'Dia_Nacimiento', value: birth.getDate().toString().padStart(2, '0') },
     { id: 'Mes_Nacimiento', value: (birth.getMonth() + 1).toString().padStart(2, '0') },
     { id: 'Año_Nacimiento', value: birth.getFullYear().toString() },
     { id: 'Pais', value: data.country },
     { id: 'PASAPORTE', value: data.passport },
+    { id: 'DNINIEPAS_Notificacio', value: data.passport },
     { id: 'NIE', value: data.nieLetterStart },
     { id: 'nie_principal', value: data.nieNumbers },
     { id: 'NIE_2', value: data.nieLetterEnd },
@@ -161,13 +167,32 @@ async function generateFilledPdf(data) {
     { id: 'Nacionalidad', value: data.nationality },
     { id: 'Nombre de la madre', value: data.motherName },
     { id: 'Nombre del padre', value: data.fatherName },
-    { id: 'Domicilio', value: data.addressStreet },
+    { id: 'Domicilio en España', value: data.addressStreet },
+    { id: 'Domicilio en España notificación', value: data.addressStreet },
     { id: 'Numero', value: data.addressNumber },
+    { id: 'Numero_notificacion', value: data.addressNumber },
     { id: 'Localidad', value: data.city },
     { id: 'Provincia', value: data.city },
+    { id: 'Localidad notificación', value: data.city },
+    { id: 'N Piso_Notificacion', value: data.city },
     { id: 'CP', value: data.zip },
-    { id: 'Dia_Firma', value: day },
+    { id: 'CP notificación', value: data.zip },
+    { id: 'Dia_FIrma', value: day },
     { id: 'Mes_Firma', value: month },
+
+
+    // Checkboxes
+    { id: 'Sexo', value: data.gender === 'Female' ? 'X' : '' },
+    { id: 'Sexo', value: data.gender === 'Male' ? 'X' : '' },
+
+    // Estado Civil checkboxes
+    { id: 'Soltero', value: data.civilStatus === 'Single' ? 'X' : '' },
+    { id: 'Casado', value: data.civilStatus === 'Married' ? 'X' : '' },
+    { id: 'Viudo', value: data.civilStatus === 'Widow' ? 'X' : '' },
+    { id: 'Divorciado', value: data.civilStatus === 'Divorced' ? 'X' : '' },
+    { id: 'Separado', value: data.civilStatus === 'Separated' ? 'X' : '' },
+
+
 
     // Checkboxes Current Situation
     { id: 'Trabajador por cuenta ajena', value: data.currentSituationInSpain === 'Working for a Spanish employer' ? 'X' : '' },

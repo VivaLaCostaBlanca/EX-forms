@@ -1,0 +1,20 @@
+{
+  "name": "ex-15-local-fill",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "trigger-server.js",
+  "scripts": {
+    "start": "node trigger-server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@google-cloud/local-auth": "^3.0.1",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "googleapis": "^148.0.0",
+    "pdf-lib": "^1.17.1"
+  }
+}

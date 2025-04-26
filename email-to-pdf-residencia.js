@@ -26,7 +26,7 @@ const translations = {
     'norwegian': 'noruega',
     'belgian': 'belga',
     'nederlandse': 'neerlandesa'
-    'nederlander': 'neerlandesa'
+   
   },
   countries: {
     'netherlands': 'Países Bajos',

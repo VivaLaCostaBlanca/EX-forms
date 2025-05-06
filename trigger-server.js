@@ -38,7 +38,7 @@ app.post('/trigger-residency', (req, res) => {
 
 // NEW: EX-15-Notary trigger
 app.post('/trigger-ex15-sn', (req, res) => {
-  console.log('🔔 Received trigger for Residency (EX-15)');
+  console.log('🔔 Received trigger for NIE by Spanish notary (EX-15)');
 
   exec('node email-to-pdf-by-sn.js', (err, stdout, stderr) => {
     if (err) {

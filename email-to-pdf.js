@@ -218,7 +218,7 @@ function extractSubmissionData(body) {
     parsed.addressNumber = addressParts.addressNumber;
     parsed.zip = addressParts.zip;
     parsed.city = addressParts.city;
-    parsed.country = addressParts.country || parsed.country; // Fallback to form country if not in address
+    parsed.country = parsed.country; // Fallback to form country if not in address
   }
 
   return parsed;

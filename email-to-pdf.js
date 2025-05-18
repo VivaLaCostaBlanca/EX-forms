@@ -87,6 +87,100 @@ async function getLatestMessage(gmail) {
   return body;
 }
 
+function parseAddress(address) {
+  const result = {
+    addressStreet: '',
+    addressNumber: '',
+    zip: '',
+    city: '',
+    country: ''
+  };
+
+  if (!address) return result;
+
+  // Standardize separators and clean up the address
+  let cleanAddress = address
+    .replace(/,/g, ' ') // Replace commas with spaces
+    .replace(/\s+/g, ' ') // Collapse multiple spaces
+    .trim();
+
+  // Extract country code (last 2 letters)
+  const countryMatch = cleanAddress.match(/([A-Z]{2})$/);
+  if (countryMatch) {
+    result.country = countryMatch[1];
+    cleanAddress = cleanAddress.replace(countryMatch[0], '').trim();
+  }
+
+  // Extract ZIP code (varies by country)
+  const zipPatterns = [
+    // Dutch format: 1234 AB
+    /\b(\d{4}\s*[A-Z]{2})\b/i,
+    // Spanish format: 12345 or 12345 VC
+    /\b(\d{5}(?:\s*[A-Z]{2})?)\b/i,
+    // German format: 12345
+    /\b(\d{5})\b/,
+    // UK format: A1 1AA or A11 1AA or AA1 1AA or AA11 1AA
+    /\b([A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2})\b/i
+  ];
+
+  for (const pattern of zipPatterns) {
+    const zipMatch = cleanAddress.match(pattern);
+    if (zipMatch) {
+      result.zip = zipMatch[1].replace(/\s+/g, ' ').trim();
+      cleanAddress = cleanAddress.replace(zipMatch[0], '').trim();
+      break;
+    }
+  }
+
+  // Extract city (last word before ZIP or last word if no ZIP)
+  const cityParts = cleanAddress.split(' ');
+  if (cityParts.length > 0) {
+    // Handle multi-word city names (like "Alfaz del Pi")
+    const possibleCities = [
+      'Alfaz del Pi', 'Dénia', 'Mainz', 'Breda', 'London'
+      // Add more city names as needed
+    ];
+
+    let foundCity = false;
+    for (const city of possibleCities) {
+      if (cleanAddress.includes(city)) {
+        result.city = city;
+        cleanAddress = cleanAddress.replace(city, '').trim();
+        foundCity = true;
+        break;
+      }
+    }
+
+    if (!foundCity) {
+      // Fallback - take the last word as city
+      result.city = cityParts.pop();
+      cleanAddress = cityParts.join(' ').trim();
+    }
+  }
+
+  // Extract street number (usually the first or last number in remaining string)
+  const numberMatch = cleanAddress.match(/(\d+)/);
+  if (numberMatch) {
+    result.addressNumber = numberMatch[1];
+    cleanAddress = cleanAddress.replace(numberMatch[0], '').trim();
+  }
+
+  // The remaining part is the street name
+  result.addressStreet = cleanAddress;
+
+  // Special cases for street names with numbers (like "17, Rabanusstraße")
+  if (!result.addressNumber && result.addressStreet.match(/^\d+/)) {
+    const streetParts = result.addressStreet.split(/\s+/);
+    result.addressNumber = streetParts.shift().replace(/,/g, '');
+    result.addressStreet = streetParts.join(' ');
+  }
+
+  // Clean up street name (remove trailing commas, etc.)
+  result.addressStreet = result.addressStreet.replace(/^,|,$/g, '').trim();
+
+  return result;
+}
+
 function extractSubmissionData(body) {
   const fields = {
     "First name/s": "firstName",
@@ -117,13 +211,14 @@ function extractSubmissionData(body) {
     }
   }
 
-  // 🏗️ Address Parsing: Abeelstraat 23 4814 HA Breda NL
+  // Parse address using the new function
   if (parsed.address) {
-    const addressParts = parsed.address.split(/\s+/);
-    parsed.addressStreet = addressParts[0];
-    parsed.addressNumber = addressParts[1];
-    parsed.zip = `${addressParts[2]} ${addressParts[3]}`;
-    parsed.city = addressParts[4];
+    const addressParts = parseAddress(parsed.address);
+    parsed.addressStreet = addressParts.addressStreet;
+    parsed.addressNumber = addressParts.addressNumber;
+    parsed.zip = addressParts.zip;
+    parsed.city = addressParts.city;
+    parsed.country = addressParts.country || parsed.country; // Fallback to form country if not in address
   }
 
   return parsed;
